@@ -41,6 +41,8 @@ yarn init --yes 简写 yarn init -y
 
  cls 清屏cmd,vscode
 
+高阶函数（函数柯里化实现）
+
  weakMap: key必须是对象，自动垃圾回收
  函数柯里化：固定部分参数，返回一个接受剩余参数的函数
             根据不同的参数处理不同的逻辑，返回新的函数
@@ -48,3 +50,92 @@ yarn init --yes 简写 yarn init -y
 effect
 1)视图中获取数据 触发get 收集effect
 2)修改数据 触发 set 执行 effect
+
+reactive
+proxy 懒代理，嵌套多层，使用到的再设置代理
+ 
+effect: 依赖
+
+流程：
+1）数据第一层定义proxy,懒代理（嵌套多层，使用到的再设置代理）
+2）访问数据，触发get, 设置代理，收集依赖(effect) track函数收集依赖
+3）修改数据 触发set 执行effect trigger触发执行依赖
+
+state = reactive({ list: [1,2,3] })
+// {{ state.list }} // 页面依赖 targetMap(weakMap) = { { list: [1,2,3] } : Map({ list: Set({}) })} ,target: state.list
+// state.list[3] = 2 超出索引设置值，不会触发更新
+state.list[3] = 2设置完值后，target = [1,2,3,2],不存在对应依赖不会更新
+
+结论：通过数组索引更改数组值，target不一致，state.list的target为state
+      通过索引更改数组，target为最新数组
+      使用target作为key,获取不到对应Map
+      .push,.pop,.shift,.unshift方法同上
+
+state.list.length
+实际为两个依赖，state.list state.list.length 
+
+.slice不会改变原数组，不会触发依赖更新
+
+ref: 原理 Object.defineProperty proxy必须是对象
+返回是一个对象
+
+constructor(public target, public shall) {
+       // 等价于 this.target = target this.shall = shall
+  }
+
+toRef: 将目标对象属性值变成ref对象
+toRef(target, key)
+
+普通对象，然后toRef,不是响应式
+reactive定义对象，然后toRef，是响应式
+原因：1）const state = reactive({ age: 10 }) state = proxy对象
+      2) const stateRef = toRef(proxy对象, key),得到ObjectRefImpl实例
+      3)通过stateRef.value 触发get,访问proxy对象[key],从而触发proxy的get方法，收集依赖，stateRef.value值改变的时候更新依赖
+
+      class ObjectRefImpl {
+        public __v_isRef = true;
+        constructor(public target, public key) {
+        }
+        get value() {
+            return this.target[this.key]
+        }
+        set value(newVal) {
+            this.target[this.key] = newVal
+        }
+      }
+computed特性
+1）懒执行，computed定义了不使用，不会执行， 
+2）缓存机制（_dirty属性实现）
+
+let age = ref(10)
+let myAge = computed(() => age.value + 10)
+console.log(myAge.value) // 使用了执行computed
+
+setTimeout(() => {
+    age.value = 20 // 未使用不会执行
+    // console.log(myAge.value) // 使用了执行computed
+}, 1000)
+
+vue3兼容vue2写法
+
+const App = {
+    data() {
+        return {
+            a: 1
+        }
+    },
+    render(a,this) {
+        // a === this true
+        // a => Proxy(组件中定义的属性合并) this => Proxy
+        return h('div',{style: { color: 'red' }}, 'hello')
+    }
+    // setup中可以直接返回函数包裹h函数
+    setup() {
+        const state = { age: 10 }
+        const fn = state.age++
+        return () => {
+            return h('div',{style: { color: 'red' }, onClick: fn }, `hello${state.age}`)
+    }
+        }
+}
+runtime-dom: 操作dom相关（挂载，h函数等）

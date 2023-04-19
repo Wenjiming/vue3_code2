@@ -1,23 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-</head>
-<body>
-  <script src="../dist/reactivity.global.js"></script>
-  <script>
-    let { reactive,
-  shallowReactive,
-  shallowReadonly,
-  readonly } = VueReactivity
-  const state =reactive({name: 'wenji', list: { age: 12 }})
-  console.log(state.name)
-  console.log(state.list)
-  console.log(state.list) 
-  console.log(state)
-  </script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script src="../dist/reactivity.global.js"></script>
+    <script>
+      let { reactive, shallowReactive, shallowReadonly, readonly, effect, ref, toRef, computed } =
+        VueReactivity;
+     const age = ref(10)
+     let getAge = computed(() => {
+      console.log('执行了')
+     return age.value+10
+     })
+     console.log(getAge)
+     console.log(getAge.value)
+     setTimeout(() => {
+      age.value = 123;
+      console.log(getAge.value)
+     }, 1000)
+    </script>
+  </body>
 </html>

@@ -1,14 +1,14 @@
 
 
-import { isObject } from '@vue/shared'
+import { hasOwn, isArray, isIntegerKey, isObject, hasChange } from '@vue/shared'
 import {
   reactive,
   shallowReactive,
   shallowReadonly,
   readonly
 } from './reactive'
-import { TrackOpTypes } from './operations'
-
+import { TrackOpTypes, TriggerOpTypes } from './operations'
+import { track, trigger } from './effect'
 
 function createGetter (isReadOnly = false, shall = false) {
   return function get(target, key, receiver) {
@@ -29,8 +29,18 @@ function createGetter (isReadOnly = false, shall = false) {
 }
 function createSetter(shall = false) {
   return function set(target, key, value, receiver) {
+    const oldValue = target[key] // 获取老值要在设置新值之前
     let res = Reflect.set(target, key, value, receiver)
     // 触发更新
+    // 1)数组或对象 2）添加值还是修改值
+    let hasKey = isArray(target) && isIntegerKey(key) ? Number(key) < target.length : hasOwn(target, key)
+    if (!hasKey) { // 新增
+      trigger(target, TriggerOpTypes.ADD,key, value)
+    } else { // 修改
+      if (hasChange(value, oldValue)) {
+        trigger(target, TriggerOpTypes.SET,key, value, oldValue)
+      }
+    }
     return res
   }
 }
