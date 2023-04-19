@@ -114,13 +114,27 @@ var VueRuntimeDom = (function (exports) {
   };
 
   // 操作dom 1)节点 2）属性
+  function createRenderer(renderOptionDom) {
+      return {
+          createApp(rootComp, rootProps) {
+              let app = {
+                  mount(container) {
+                  }
+              };
+              return app;
+          }
+      };
+  }
   extend({ patchProps }, nodeOps);
   const createApp = (rootComp, rootProps) => {
-      let app = {};
+      // 不同平台操作dom不同
+      let app = createRenderer().createApp(rootComp, rootProps);
+      let { mount } = app;
       app.mount = (container) => {
           container = nodeOps.querySelector(container);
           container.innerHTML = '';
           // dom元素挂载
+          mount(container);
       };
       return app;
   };

@@ -3,8 +3,17 @@ import { extend } from "@vue/shared"
 import { nodeOps } from './nodeOps'
 import { patchProps } from './patchProp'
 
-function createRenderer() {
-
+function createRenderer(renderOptionDom) {
+  return {
+    createApp(rootComp, rootProps) {
+      let app = {
+        mount(container) {
+          
+        }
+      }
+      return app
+    }
+  }
 }
 const renderOptionDom = extend({patchProps}, nodeOps)
 export const createApp = (rootComp, rootProps) => {
