@@ -2,19 +2,8 @@
 import { extend } from "@vue/shared"
 import { nodeOps } from './nodeOps'
 import { patchProps } from './patchProp'
+import { createRenderer } from '@vue/runtime-core'
 
-function createRenderer(renderOptionDom) {
-  return {
-    createApp(rootComp, rootProps) {
-      let app = {
-        mount(container) {
-          
-        }
-      }
-      return app
-    }
-  }
-}
 const renderOptionDom = extend({patchProps}, nodeOps)
 export const createApp = (rootComp, rootProps) => {
   // 不同平台操作dom不同

@@ -11,7 +11,6 @@ const isIntegerKey = (key) => isString(key) &&
     key[0] !== '-' &&
     '' + parseInt(key, 10) === key;
 const hasChange = (val, oldVal) => {
-    console.log(val != oldVal);
     return val != oldVal;
 };
 

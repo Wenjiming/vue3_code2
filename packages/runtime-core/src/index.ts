@@ -1,1 +1,1 @@
-export const age = 123
+export { createRenderer } from './render'

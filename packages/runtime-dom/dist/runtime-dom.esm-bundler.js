@@ -110,22 +110,24 @@ const patchProps = (el, key, prevValue, nextValue) => {
     }
 };
 
-// 操作dom 1)节点 2）属性
 function createRenderer(renderOptionDom) {
     return {
         createApp(rootComp, rootProps) {
             let app = {
                 mount(container) {
+                    console.log(rootComp, rootProps, container, renderOptionDom);
                 }
             };
             return app;
         }
     };
 }
-extend({ patchProps }, nodeOps);
+
+// 操作dom 1)节点 2）属性
+const renderOptionDom = extend({ patchProps }, nodeOps);
 const createApp = (rootComp, rootProps) => {
     // 不同平台操作dom不同
-    let app = createRenderer().createApp(rootComp, rootProps);
+    let app = createRenderer(renderOptionDom).createApp(rootComp, rootProps);
     let { mount } = app;
     app.mount = (container) => {
         container = nodeOps.querySelector(container);

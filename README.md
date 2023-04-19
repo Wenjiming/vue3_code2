@@ -139,3 +139,4 @@ const App = {
         }
 }
 runtime-dom: 操作dom相关（挂载，h函数等）
+createRenderer的作用是： 实现vue3的runtime-core的核心，不只是仅仅的渲染到dom上，还可以渲染到canvas,webview等指定的平台
